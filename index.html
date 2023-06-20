@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Interactive X-Decoder for Understanding and Generating Pixel, Image, and Language">
+  <meta name="keywords" content="multimodal, pixel understadning">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>X-Decoder-SEEM</title>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/954/954591.png">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
+  <script type="module" src="https://gradio.s3-us-west-2.amazonaws.com/3.27.0/gradio.js"></script>
+</head>
+
+<style>
+  .expandable-card .card-text-container {
+    max-height: 200px;
+    overflow-y: hidden;
+    position: relative;
+  }
+
+  .expandable-card.expanded .card-text-container {
+    max-height: none;
+  }
+
+  .expand-btn {
+    position: relative;
+    display: none;
+    background-color: rgba(255, 255, 255, 0.8);
+    /* margin-top: -20px; */
+    /* justify-content: center; */
+    color: #510c75;
+    border-color: transparent;
+  }
+
+  .expand-btn:hover {
+    background-color: rgba(200, 200, 200, 0.8);
+    text-decoration: none;
+    border-color: transparent;
+    color: #510c75;
+  }
+
+  .expand-btn:focus {
+    outline: none;
+    text-decoration: none;
+  }
+
+  .expandable-card:not(.expanded) .card-text-container:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 1));
+  }
+
+  .expandable-card:not(.expanded) .expand-btn {
+    margin-top: -40px;
+  }
+
+  .card-body {
+    padding-bottom: 5px;
+  }
+
+  .vertical-flex-layout {
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .figure-img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .adjustable-font-size {
+    font-size: calc(0.5rem + 2vw);
+  }
+
+  .chat-history {
+    flex-grow: 1;
+    overflow-y: auto;
+    /* overflow-x: hidden; */
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+  }
+
+  .row {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+    max-width: 100em;
+  }
+
+  .team * {
+    text-align: center;
+    font-weight: 400;
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+  
+  .home_team_picture {
+    border-radius: 100px;
+    -webkit-border-radius: 100px;
+    -moz-border-radius: 100px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, .8);
+    -webkit-box-shadow: 0 0 8px rgba(0, 0, 0, .8);
+    -moz-box-shadow: 0 0 8px rgba(0, 0, 0, .8);
+  }
+
+  #project_lead {
+      display: inline-block;
+      margin-right: 2em;
+  }
+
+  #contributors {
+      display: inline-block;
+  }
+
+  .people {
+    text-align: center;
+  }
+
+  #gradio pre {
+    background-color: transparent;
+  }
+  
+</style>
+
+<body>
+
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">X-Decoder and SEEM</h1>
+            <h3 class="title is-3 publication-title">Understanding and Generating Pixel, Image, and Language</h3>
+            <!-- <div class="is-size-5">
+              <span class="author-block">
+                <a href="https://hliu.cc/" style="color:#f68946;font-weight:normal;">Haotian Liu<sup>*</sup></a>,
+              </span>
+              <span class="author-block">
+                <a href="https://chunyuan.li/" style="color:#008AD7;font-weight:normal;">Chunyuan Li<sup>*</sup></a>,
+              </span>
+              <span class="author-block">
+                <a href="https://qywu.github.io/about.html" style="color:#F2A900;font-weight:normal;">Qingyang Wu</a>,
+              </span>
+              <span class="author-block">
+                <a href="https://pages.cs.wisc.edu/~yongjaelee/" style="color:#f68946;font-weight:normal;">Yong Jae
+                  Lee</a>,
+              </span>
+            </div> -->
+
+            <!-- <br>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><b style="color:#f68946; font-weight:normal">&#x25B6 </b> University of
+                Wisconsin-Madison</b></span>
+              <span class="author-block"><b style="color:#008AD7; font-weight:normal">&#x25B6 </b> Microsoft Research</span>
+              <span class="author-block"><b style="color:#F2A900; font-weight:normal">&#x25B6 </b>Columbia
+                University</span>
+              <span class="author-block">&nbsp&nbsp<sup>*</sup>Equal Contribution</span>
+            </div> -->
+
+
+            <!-- <div class="column has-text-centered">
+              <div class="publication-links">
+                <span class="link-block">
+                  <a href="https://arxiv.org/abs/2304.08485" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                    </span>
+                    <span>arXiv</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="https://github.com/haotian-liu/LLaVA" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="https://llava.hliu.cc" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="far fa-images"></i>
+                    </span>
+                    <span>Demo</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="https://huggingface.co/datasets/liuhaotian/LLaVA-Instruct-150K" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-database"></i>
+                    </span>
+                    <span>Dataset</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="https://huggingface.co/liuhaotian/LLaVA-13b-delta-v0" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-share-square"></i>
+                    </span>
+                    <span>Model</span>
+                  </a>
+                </span> -->
+
+
+                
+
+                <!-- <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                  </a>
+              </span> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero teaser">
+    <div class="container is-max-desktop">
+      <div class="hero-body">
+        <h4 class="subtitle has-text-centered">
+          We demonstrate X-Decoder and SEEM that are capable of interacting with humans, understanding visual contents at different levels (from image to pixel), generating and editing visual contents following user instructions.
+        </h4>
+      </div>
+    </div>
+  </section>
+
+  <section class="section"  style="background-color:#efeff081">
+
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-six-fifths">
+        <h2 class="title is-3"><img id="painting_icon" width="3%" src="https://cdn-icons-png.flaticon.com/512/5886/5886212.png"> Interactive Image Demo</h2>
+      </div>
+    </div>
+
+    <div class="container is-max-desktop" id="gradio">
+      <gradio-app src="https://200e57d89d77efdc20.gradio.live"></gradio-app>
+    </div>
+  </section>
+
+  <section class="section"  style="background-color:#efeff081">
+
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-six-fifths">
+        <h2 class="title is-3"><img id="painting_icon" width="3%" src="./images/video.png"> Interactive Video Demo</h2>
+      </div>
+    </div>
+
+    <div class="container is-max-desktop" id="gradio">
+      <gradio-app src="https://b3363f524cc72ca4e3.gradio.live"></gradio-app>
+    </div>
+  </section>
+
+  <section class="section" id="Contribution">
+    <div class="container is-max-desktop content">
+      <div id="project_lead">
+        <h3 class="title">Project Lead</h3>
+            <div class="people">
+                <a href="https://jwyang.github.io"><img src="https://jwyang.github.io/images/profile.png" class="home_team_picture" target="_blank" width="75" height="75";>
+                    <br><br>
+                </a>
+                <p style="font-size:12px; font-weight: 200;">Jianwei Yang
+                    <br>Microsoft</p>
+            </div>
+      </div>
+      <div id="contributors">
+        <h3 class="title">Contributors</h3>
+          <div class="people">
+              <a href="https://maureenzou.github.io/"><img src="https://scholar.googleusercontent.com/citations?view_op=view_photo&user=eslbQqoAAAAJ&citpid=3" target="_blank" class="home_team_picture style=" width="75" height="75" ;>
+                  <br><br>
+              </a>
+              <p style="font-size:12px; font-weight: 200;">Xueyan Zou
+                  <br>UW Madison
+              </p>
+          </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>
+      @article{zou2023segment,
+        title={Segment everything everywhere all at once},
+        author={Zou*, Xueyan and Yang*, Jianwei and Zhang*, Hao and Li*, Feng and Li, Linjie and Wang, Jianfeng and Wang, Lijuan and Gao#, Jianfeng and Lee#, Yong Jae},
+        journal={arXiv},
+        year={2023}
+      }
+      @inproceedings{zou2023generalized,
+        title={Generalized decoding for pixel, image, and language},
+        author={Zou*, Xueyan and Dou*, Zi-Yi and Yang*, Jianwei and Gan, Zhe and Li, Linjie and Li, Chunyuan and Dai, Xiyang and Behl, Harkirat and Wang, Jianfeng and Yuan, Lu and Peng, Nanyun and Lijuan, Wang and Gao#, Jianfeng, and Lee#, Yong Jae},
+        journal={CVPR},
+        year={2023}
+      }    
+      </code></pre>
+    </div>
+  </section>
+
+  <section class="section" id="Acknowledgement">
+    <div class="container is-max-desktop content">
+      <h2 class="title">Acknowledgement</h2>
+      <p>
+        This website is adapted from <a
+        href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>, licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+        Commons Attribution-ShareAlike 4.0 International License</a>. We also appreciate <a href="https://github.com/arul-aravinthan" target="_blank">Arul Aravinthan</a> for helping build the demo frontend.
+      </p>
+
+      <p>
+      <a href='https://github.com/Computer-Vision-in-the-Wild/'><img id="painting_icon" width="10%" src="https://avatars.githubusercontent.com/u/97258247?s=200&v=4"></a> 
+      Related Links: 
+      <a href='https://github.com/Computer-Vision-in-the-Wild/'>[Computer Vision in the Wild (CVinW)]</a> 
+      </p>    
+    </div>
+  </section>
+
+</body>
+
+</html>
